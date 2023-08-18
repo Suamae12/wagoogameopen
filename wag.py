@@ -25,6 +25,11 @@ def retrieve_latest_message(channel_id, bot_token):
 
     return message
 
+def extract_game_id(url):
+    game_id_start = url.find("https://www.roblox.com/games/") + len("https://www.roblox.com/games/")
+    game_id = url[game_id_start:game_id_start + 11]
+    return game_id
+
 def print_colored_message(message, color_code):
     print(f"\033[{color_code}m{message}\033[0m")
 
@@ -60,21 +65,29 @@ def main():
                     game_found = False
                     for embed in latest_message.get('embeds', []):
                         print("Embed:")
-                        print(f"  Title: {embed.get('title', '')}")
-                        print(f"  Description: {embed.get('description', '')}")
-                        print(f"  URL: {embed.get('url', '')}")
-                        for field in embed.get('fields', []):
-                            field_name = field['name']
-                            field_value = field['value']
+                        for key, value in embed.items():
+                            if isinstance(value, str):
+                                print(f"  {key}: {value}")
+                            elif key == 'fields':
+                                for field in value:
+                                    field_name = field.get('name', '')
+                                    field_value = field.get('value', '')
+                                    print(f"  Field: {field_name}: {field_value}")
 
-                            if field_name.lower() == 'game':
-                                game_id = field_value.split('/')[-1]
-                                print(f"  Game ID: {game_id}")
-                                url = f"roblox://placeID={game_id}"
-                                print(f"Opening URL: {url}")
-                                webbrowser.open_new_tab(url)
-                                game_found = True
+                        game_id = None
+                        for field in embed.get('fields', []):
+                            field_value = field.get('value', '')
+                            if "https://www.roblox.com/games/" in field_value:
+                                game_id = extract_game_id(field_value)
                                 break
+
+                        if game_id:
+                            print(f"  Game ID: {game_id}")
+                            url = f"roblox://placeID={game_id}"
+                            print(f"Opening URL: {url}")
+                            webbrowser.open_new_tab(url)
+                            game_found = True
+                            break
 
                     if not game_found:
                         default_url = "roblox://placeID=975820487"  # Default Roblox game URL
