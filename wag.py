@@ -27,7 +27,7 @@ def retrieve_latest_message(channel_id, bot_token):
 
 def extract_game_id(url):
     game_id_start = url.find("https://www.roblox.com/games/") + len("https://www.roblox.com/games/")
-    game_id = url[game_id_start:game_id_start + 11]
+    game_id = ''.join([c for c in url[game_id_start:game_id_start + 11] if c.isdigit()])
     return game_id
 
 def print_colored_message(message, color_code):
