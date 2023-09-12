@@ -9,3 +9,6 @@ discord.gg/wagoogus
 
 # errors.
 Script closes  = incorrect config / you dont have the modules.
+
+
+bot token is user token.
